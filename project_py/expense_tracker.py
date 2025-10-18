@@ -4,6 +4,8 @@ from typing import List
 import datetime
 import calendar
 
+
+
 def main():
     print("🚀Running Expense Tracker💸")
     budget =  20000
@@ -17,6 +19,13 @@ def main():
 
     # Read and Summarize their expense.
     summarize_expense(expense_file_path, budget)
+
+    # 🧾 Ask user if they want to view all expenses
+    view_all = input("\n👀 Do you want to view all recorded expenses? (yes/no): ").strip().lower()
+    if view_all in ["yes", "y"]:
+        show_all_expenses("expenses.csv")
+    else:
+        print("👍 Okay, skipping detailed expense list.")
 
 
 def get_user_expense():
@@ -51,6 +60,8 @@ def get_user_expense():
             return new_expense
         else:
             print("Invalid Category. Enter a Valid Number")
+
+
         
 
 
@@ -72,6 +83,7 @@ def summarize_expense(expense_file_path, budget):
     expenses: List[Expense] = [ ]
     current_dir = os.path.dirname(os.path.abspath(__file__)) # To save csv file in the same directory as same as other py. files
     expense_file_path = os.path.join(current_dir, "expenses.csv")
+
     with open(expense_file_path, "r", encoding="utf-8") as f: # "utf-8 --> Explicitly tell Python to read the file as UTF-8 (the same encoding you used when writing it)."
         lines = f.readlines()
         for line in lines:
@@ -122,6 +134,35 @@ def summarize_expense(expense_file_path, budget):
 
     daily_budget = remaining_budget / remaining_days
     print(green(f"👉 Budget Per Day:  ₹{daily_budget: .2f}"))
+
+
+def show_all_expenses(expense_file_path):
+    """Display all recorded expenses in a clean table format."""
+    print("\n🧾 All Recorded Expenses Till Date:\n")
+    print(f"{'Expense Name':<20} {'Category':<20} {'Amount (₹)':<10}")
+    print("-" * 55)
+
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    expense_file_path = os.path.join(current_dir, expense_file_path)
+
+    try:
+        with open(expense_file_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+            for line in lines:
+                if not line.strip():
+                    continue
+                parts = [x.strip() for x in line.strip().split(",")]
+                if len(parts) != 3:
+                    continue
+                name, category, amount = parts
+                amount_cleaned = amount.replace("Rs.", "").replace("₹", "").strip()
+
+                print(f"{name:<20} {category:<25} ₹{float(amount_cleaned): .2f}")
+    except FileNotFoundError:
+        print("⚠️ No expense file found yet! Please add some expenses first.")
+
+    print("-" * 60)
+
 
 def green(text):
     return f"\033[92m{text}\033[0m"
