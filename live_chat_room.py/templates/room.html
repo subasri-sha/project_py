@@ -1,32 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="message-box">
+  <h2>Chat Room: {{ code }}</h2>
+  <div class="messages" id="messages"></div>
+  <div class="inputs">
+    <input
+      type="text"
+      id="message"
+      placeholder="Type a message..."
+      autocomplete="off"
+    />
+    <button id="send-btn" onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
 <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 <script type="text/javascript">
-  var socketio = io();
+  var socketio = io(); // connect to backend
   const messages = document.getElementById("messages");
 
-  // Function to display a message
-  const createMessage = (name, msg) => {
-    const content = `
-      <div class="text">
-        <span><strong>${name}</strong>: ${msg}</span>
-        <span class="muted">${new Date().toLocaleTimeString()}</span>
-      </div>
-    `;
-    messages.innerHTML += content;
+  // Create a message and display it in the chat box
+  function createMessage(name, msg) {
+    const div = document.createElement("div");
+    div.classList.add("text");
+    div.innerHTML = `<span><strong>${name}</strong>: ${msg}</span>
+                     <span class="muted">${new Date().toLocaleTimeString()}</span>`;
+    messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight; // auto-scroll
-  };
+  }
 
-  // Listen for new messages from the server
+  // When a message is received from the server
   socketio.on("message", (data) => {
+    console.log("Message received:", data); // debugging
     createMessage(data.name, data.message);
   });
 
-  // Send message to the server
-  const sendMessage = () => {
-    const messageInput = document.getElementById("message");
-    const msg = messageInput.value.trim();
+  // When the user clicks send
+  function sendMessage() {
+    const input = document.getElementById("message");
+    const msg = input.value.trim();
     if (msg === "") return;
+    socketio.emit("message", { data: msg }); // send to server
+    input.value = "";
+  }
 
-    socketio.emit("message", { data: msg });
-    messageInput.value = "";
-  };
+  // Load existing messages
+  {% for msg in messages %}
+    createMessage("{{ msg.name }}", "{{ msg.message }}");
+  {% endfor %}
 </script>
+{% endblock %}
