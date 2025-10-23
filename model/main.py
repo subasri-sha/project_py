@@ -1,20 +1,3 @@
-# import pandas as pd
-
-# def get_clean_data(): # Reads data from data.csv
-#     data = pd.read_csv("data/data.csv")
-#     print(data.head())
-#     return data
-
-# def main():
-#   data = get_clean_data()
- 
- 
-# #
-
-# if __name__ == '__main__':
-#     main()
-
-
 import pandas as pd
 
 def get_clean_data():  # Reads data from data.csv
